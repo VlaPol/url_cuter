@@ -1,8 +1,9 @@
 package by.tms.url_cuter.service;
 
-import by.tms.url_cuter.entity.TranslateRecord;
+import by.tms.url_cuter.entity.ConvertRecord;
 
 public interface CutUrlService {
-    TranslateRecord getShortNameFromUrl(String url);
-    TranslateRecord getUrlFromShortName(String shortName);
+    ConvertRecord getShortNameFromUrl(String url);
+    ConvertRecord getUrlFromShortName(String shortName);
+    int getTotalNumberOfUrls();
 }

@@ -8,7 +8,7 @@ import lombok.*;
 @NoArgsConstructor(force = true)
 @Setter
 @ToString
-public class TranslateRecord {
+public class ConvertRecord {
     private String shortName;
     private String url;
 }

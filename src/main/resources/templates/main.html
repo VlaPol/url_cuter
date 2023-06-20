@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Sort URL</title>
+</head>
+<body>
+<h1>Вы находтесь на странице, преобразующей адреса</h1>
+<h2 th:text=" 'В настоящий момент у нас преобразован: ' +  ${counter} + ' ссылок!'"></h2>
+<hr>
+<br>
+<h4>Вставьте исходный адрес в строку ввода для преобразования </h4>
+
+<form th:action="@{/shorturl}" th:object="${convertedRecord}" method="post">
+
+    <div>
+        <label>Исходный URL: </label>
+        <label>
+            <input type="text" th:field="*{url}" placeholder="Исходный URL"/>
+        </label>
+    </div>
+    <br>
+    <input type="submit" value="Конвертировать"/>
+</form>
+
+<hr>
+<br>
+<h4>Вставьте преобразованный адрес в строку ввода для получения исходного адреса </h4>
+<form th:action="@{/realurl}" th:object="${convertedRecord}" method="post">
+    <div>
+        <label>Исходный URL: </label>
+        <label>
+            <input type="text" th:field="*{url}" placeholder="Сокращенный адрес"/>
+        </label>
+    </div>
+    <br>
+    <input type="submit" value="Конвертировать"/>
+</form>
+
+<hr>
+<br>
+<h2> Преобразованная ссылка:</h2>
+<a th:href="@{${sName}}" th:text="${sName}"></a>
+
+</body>
+</html>

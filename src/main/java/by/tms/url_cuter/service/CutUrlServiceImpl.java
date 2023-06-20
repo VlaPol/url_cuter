@@ -1,6 +1,6 @@
 package by.tms.url_cuter.service;
 
-import by.tms.url_cuter.entity.TranslateRecord;
+import by.tms.url_cuter.entity.ConvertRecord;
 import by.tms.url_cuter.repository.CutUrlRepository;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
@@ -17,7 +17,7 @@ public class CutUrlServiceImpl implements CutUrlService {
     }
 
     @Override
-    public TranslateRecord getShortNameFromUrl(String url) {
+    public ConvertRecord getShortNameFromUrl(String url) {
 
         String shortName = UUID.randomUUID().toString().replace("-", "").substring(0, 6);
 
@@ -25,7 +25,7 @@ public class CutUrlServiceImpl implements CutUrlService {
             shortName = UUID.randomUUID().toString().replace("-", "").substring(0, 6);
         }
 
-        TranslateRecord tr = TranslateRecord.builder()
+        ConvertRecord tr = ConvertRecord.builder()
                 .shortName(shortName)
                 .url(url)
                 .build();
@@ -40,7 +40,7 @@ public class CutUrlServiceImpl implements CutUrlService {
     }
 
     @Override
-    public TranslateRecord getUrlFromShortName(String shortName) {
+    public ConvertRecord getUrlFromShortName(String shortName) {
 
         String sName = shortName.substring(shortName.lastIndexOf('/') + 1);
 
@@ -48,7 +48,12 @@ public class CutUrlServiceImpl implements CutUrlService {
             throw new RuntimeException("нет такого адреса в БД");
         }
 
-        TranslateRecord translateRecord = cutUrlRepository.getTranslateRecord(sName);
-        return translateRecord;
+        ConvertRecord convertRecord = cutUrlRepository.getTranslateRecord(sName);
+        return convertRecord;
+    }
+
+    @Override
+    public int getTotalNumberOfUrls() {
+        return cutUrlRepository.getTotal();
     }
 }

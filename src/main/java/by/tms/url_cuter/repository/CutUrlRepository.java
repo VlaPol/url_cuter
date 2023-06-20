@@ -1,14 +1,14 @@
 package by.tms.url_cuter.repository;
 
-import by.tms.url_cuter.entity.TranslateRecord;
+import by.tms.url_cuter.entity.ConvertRecord;
 
 public interface CutUrlRepository {
 
-    void addNewRecord(TranslateRecord inputRecord);
+    void addNewRecord(ConvertRecord inputRecord);
 
-    TranslateRecord getTranslateRecord(String shortName);
+    ConvertRecord getTranslateRecord(String shortName);
 
     boolean isShortNameExists(String shortName);
 
-
+    int getTotal();
 }
