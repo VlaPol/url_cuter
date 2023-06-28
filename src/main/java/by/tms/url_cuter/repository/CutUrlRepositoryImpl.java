@@ -2,7 +2,7 @@ package by.tms.url_cuter.repository;
 
 import by.tms.url_cuter.entity.ConvertRecord;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Repository;
 
@@ -11,12 +11,10 @@ import java.util.List;
 
 @Repository
 public class CutUrlRepositoryImpl implements CutUrlRepository {
+    private final NamedParameterJdbcOperations jdbcTemplate;
 
-    DataSource dataSource;
-    NamedParameterJdbcTemplate jdbcTemplate;
-
-    public CutUrlRepositoryImpl(DataSource dataSource) {
-        jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+    public CutUrlRepositoryImpl(DataSource dataSource, NamedParameterJdbcOperations jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     @Override
@@ -26,7 +24,8 @@ public class CutUrlRepositoryImpl implements CutUrlRepository {
                 VALUES (:sName, :url)
                 """;
 
-        SqlParameterSource parametr = new MapSqlParameterSource("sName", inputRecord.getShortName()).addValue("url", inputRecord.getUrl());
+        SqlParameterSource parametr = new MapSqlParameterSource("sName", inputRecord.getShortName())
+                .addValue("url", inputRecord.getUrl());
         jdbcTemplate.update(sql, parametr);
     }
 
@@ -66,10 +65,12 @@ public class CutUrlRepositoryImpl implements CutUrlRepository {
 
         SqlParameterSource parametr = new MapSqlParameterSource("sName", shortName);
 
-        String mresult = jdbcTemplate.query(sql, parametr, (rs, rowNum) -> rs.getString("SHORT_NAME")).toString();
-        String result = mresult.replace("[", "").replace("]", "");
-
-        return result.equals(shortName);
+        List<String> tmpList = jdbcTemplate.query(sql, parametr, (rs, rowNum) -> rs.getString("SHORT_NAME"));
+        if (!tmpList.isEmpty()) {
+            return tmpList.get(0).equals(shortName);
+        } else {
+            return false;
+        }
     }
 
     @Override
@@ -79,7 +80,7 @@ public class CutUrlRepositoryImpl implements CutUrlRepository {
                 FROM url_synonims us
                 """;
 
-        return Integer.parseInt(jdbcTemplate.query(sql, (rs, rowNum) -> rs.getInt("TOTAL")).toString()
-                .replace("[", "").replace("]", ""));
+        return jdbcTemplate.query(sql, (rs, rowNum) -> rs.getInt("TOTAL")).get(0);
+
     }
 }

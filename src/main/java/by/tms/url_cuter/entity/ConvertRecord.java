@@ -2,11 +2,11 @@ package by.tms.url_cuter.entity;
 
 import lombok.*;
 
-@Data
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor(force = true)
+@NoArgsConstructor
 @Setter
+@Getter
 @ToString
 public class ConvertRecord {
     private String shortName;
