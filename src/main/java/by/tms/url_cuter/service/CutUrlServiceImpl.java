@@ -5,6 +5,7 @@ import by.tms.url_cuter.repository.CutUrlRepository;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -36,7 +37,13 @@ public class CutUrlServiceImpl implements CutUrlService {
             System.out.println(e.getMessage());
         }
 
-        return cutUrlRepository.getTranslateRecord(shortName);
+        Optional<ConvertRecord> translateRecord = cutUrlRepository.getTranslateRecord(shortName);
+        if (translateRecord.isPresent()) {
+            return translateRecord.get();
+        } else {
+            throw new RuntimeException("Что-то пошло не так");
+        }
+        //return cutUrlRepository.getTranslateRecord(shortName);
     }
 
     @Override
@@ -44,16 +51,26 @@ public class CutUrlServiceImpl implements CutUrlService {
 
         String sName = shortName.substring(shortName.lastIndexOf('/') + 1);
 
-        if (!cutUrlRepository.isShortNameExists(sName)){
-            throw new RuntimeException("нет такого адреса в БД");
+        if (!cutUrlRepository.isShortNameExists(sName)) {
+            throw new RuntimeException("Нет такого адреса в БД");
         }
 
-        ConvertRecord convertRecord = cutUrlRepository.getTranslateRecord(sName);
-        return convertRecord;
+        Optional<ConvertRecord> translateRecord = cutUrlRepository.getTranslateRecord(shortName);
+        if (translateRecord.isPresent()) {
+            return translateRecord.get();
+        } else {
+            throw new RuntimeException("Что-то пошло не так");
+        }
     }
 
     @Override
     public int getTotalNumberOfUrls() {
-        return cutUrlRepository.getTotal();
+        Optional<Integer> total = cutUrlRepository.getTotal();
+        if(total.isPresent()){
+            return total.get();
+        }else{
+            return 0;
+        }
+
     }
 }

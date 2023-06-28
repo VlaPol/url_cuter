@@ -8,12 +8,13 @@ import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class CutUrlRepositoryImpl implements CutUrlRepository {
     private final NamedParameterJdbcOperations jdbcTemplate;
 
-    public CutUrlRepositoryImpl(DataSource dataSource, NamedParameterJdbcOperations jdbcTemplate) {
+    public CutUrlRepositoryImpl(NamedParameterJdbcOperations jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
@@ -30,7 +31,7 @@ public class CutUrlRepositoryImpl implements CutUrlRepository {
     }
 
     @Override
-    public ConvertRecord getTranslateRecord(String shortName) {
+    public Optional<ConvertRecord> getTranslateRecord(String shortName) {
 
         String sql = """ 
                 SELECT us.url, us.short_name
@@ -40,18 +41,13 @@ public class CutUrlRepositoryImpl implements CutUrlRepository {
 
         SqlParameterSource parametr = new MapSqlParameterSource("sName", shortName);
 
-        List<ConvertRecord> records = jdbcTemplate.query(sql, parametr, (rs, rowNum) -> {
-            ConvertRecord tr = new ConvertRecord();
-            tr.setShortName(rs.getString("SHORT_NAME"));
-            tr.setUrl(rs.getString("URL"));
-            return tr;
-        });
-
-        if (!records.isEmpty()) {
-            return records.get(0);
-        } else {
-            throw new RuntimeException("Нет такого урла!");
-        }
+        return jdbcTemplate.query(sql, parametr, (rs, rowNum) -> {
+                    ConvertRecord tr = new ConvertRecord();
+                    tr.setShortName(rs.getString("SHORT_NAME"));
+                    tr.setUrl(rs.getString("URL"));
+                    return tr;
+                }).stream()
+                .findFirst();
     }
 
     @Override
@@ -74,13 +70,13 @@ public class CutUrlRepositoryImpl implements CutUrlRepository {
     }
 
     @Override
-    public int getTotal() {
+    public Optional<Integer> getTotal() {
         String sql = """ 
                 SELECT count(us.short_name) as total
                 FROM url_synonims us
                 """;
 
-        return jdbcTemplate.query(sql, (rs, rowNum) -> rs.getInt("TOTAL")).get(0);
+        return jdbcTemplate.query(sql, (rs, rowNum) -> rs.getInt("TOTAL")).stream().findFirst();
 
     }
 }
