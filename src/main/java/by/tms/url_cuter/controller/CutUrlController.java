@@ -6,6 +6,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -33,7 +34,11 @@ public class CutUrlController {
     String getShortUrl(@ModelAttribute("convertedRecord") ConvertRecord convertedRecord,
                        Model model){
 
-        convertedRecord = cutUrlService.getShortNameFromUrl(convertedRecord.getUrl());
+        try {
+            convertedRecord = cutUrlService.getShortNameFromUrl(convertedRecord.getUrl());
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
         String convertUrl = path + convertedRecord.getShortName();
 
         model.addAttribute("sName", convertUrl);
