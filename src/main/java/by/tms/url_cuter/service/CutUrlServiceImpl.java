@@ -2,6 +2,7 @@ package by.tms.url_cuter.service;
 
 import by.tms.url_cuter.configure.BlackListConfig;
 import by.tms.url_cuter.entity.ConvertRecord;
+import by.tms.url_cuter.exceptions.AppException;
 import by.tms.url_cuter.repository.CutUrlRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataAccessException;
@@ -27,7 +28,7 @@ public class CutUrlServiceImpl implements CutUrlService {
 
         try {
             if (!isCorrectUrl(url)) {
-                throw new RuntimeException("введен некоректный адрес или адрес находится в блокировке");
+                throw new AppException("Введен некоректный адрес или адрес находится в блокировке");
             }
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
@@ -48,7 +49,7 @@ public class CutUrlServiceImpl implements CutUrlService {
         try {
             cutUrlRepository.addNewRecord(tr);
         } catch (DataAccessException e) {
-            System.out.println(e.getMessage());
+            throw new RuntimeException(e.getMessage());
         }
 
         Optional<ConvertRecord> translateRecord = cutUrlRepository.getTranslateRecord(shortName);
@@ -66,7 +67,7 @@ public class CutUrlServiceImpl implements CutUrlService {
         String sName = shortName.substring(shortName.lastIndexOf('/') + 1);
 
         if (!cutUrlRepository.isShortNameExists(sName)) {
-            throw new RuntimeException("Нет такого адреса в БД");
+            throw new AppException("Нет такого адреса в БД");
         }
 
         Optional<ConvertRecord> translateRecord = cutUrlRepository.getTranslateRecord(shortName);

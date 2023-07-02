@@ -7,8 +7,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URISyntaxException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 @Controller
 //@RequestMapping("/")
@@ -42,6 +40,7 @@ public class CutUrlController {
         String convertUrl = path + convertedRecord.getShortName();
 
         model.addAttribute("sName", convertUrl);
+        model.addAttribute("counter", cutUrlService.getTotalNumberOfUrls());
         return "main";
     }
 
@@ -53,6 +52,7 @@ public class CutUrlController {
 
         convertedRecord = cutUrlService.getUrlFromShortName(url);
         model.addAttribute("sName", convertedRecord.getUrl());
+        model.addAttribute("counter", cutUrlService.getTotalNumberOfUrls());
         return "main";
     }
 }
