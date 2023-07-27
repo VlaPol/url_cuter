@@ -5,24 +5,21 @@ import by.tms.url_cuter.entity.ConvertRecord;
 import by.tms.url_cuter.exceptions.AppException;
 import by.tms.url_cuter.repository.CutUrlRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
 @AllArgsConstructor
 public class CutUrlServiceImpl implements CutUrlService {
 
-    CutUrlRepository cutUrlRepository;
-    BlackListConfig conf;
+    private final CutUrlRepository cutUrlRepository;
+    private final BlackListConfig conf;
 
     @Override
-    @Transactional(rollbackFor = RuntimeException.class)
+    @Transactional
     public ConvertRecord getShortNameFromUrl(String url) {
 
 
@@ -30,82 +27,50 @@ public class CutUrlServiceImpl implements CutUrlService {
             if (!isCorrectUrl(url)) {
                 throw new AppException("Введен некоректный адрес или адрес находится в блокировке");
             }
-        } catch (URISyntaxException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
-
-        String shortName = UUID.randomUUID().toString().replace("-", "").substring(0, 6);
-
-        while (cutUrlRepository.isShortNameExists(shortName)) {
+        String shortName;
+        do {
             shortName = UUID.randomUUID().toString().replace("-", "").substring(0, 6);
-        }
+        } while (cutUrlRepository.isShortNameExists(shortName));
 
         ConvertRecord tr = ConvertRecord.builder()
                 .shortName(shortName)
                 .url(url)
                 .build();
 
-        try {
-            cutUrlRepository.addNewRecord(tr);
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e.getMessage());
-        }
+        cutUrlRepository.addNewRecord(tr);
 
-        Optional<ConvertRecord> translateRecord = cutUrlRepository.getTranslateRecord(shortName);
-        if (translateRecord.isPresent()) {
-            return translateRecord.get();
-        } else {
-            throw new RuntimeException("Что-то пошло не так");
-        }
+        return cutUrlRepository.getTranslateRecord(shortName)
+                .orElseThrow(() -> new RuntimeException("Что-то пошло не так"));
+
     }
 
     @Override
     @Transactional
     public ConvertRecord getUrlFromShortName(String shortName) {
 
-        String sName = shortName.substring(shortName.lastIndexOf('/') + 1);
-
-        if (!cutUrlRepository.isShortNameExists(sName)) {
-            throw new AppException("Нет такого адреса в БД");
-        }
-
-        Optional<ConvertRecord> translateRecord = cutUrlRepository.getTranslateRecord(shortName);
-        if (translateRecord.isPresent()) {
-            return translateRecord.get();
-        } else {
-            throw new RuntimeException("Что-то пошло не так");
-        }
+        return cutUrlRepository.getTranslateRecord(shortName)
+                .orElseThrow(() -> new AppException("Нет такого адреса в БД"));
     }
 
     @Override
     @Transactional
     public int getTotalNumberOfUrls() {
-        Optional<Integer> total = cutUrlRepository.getTotal();
-        if (total.isPresent()) {
-            return total.get();
-        } else {
-            return 0;
-        }
-
+        return cutUrlRepository.getTotal().orElse(0);
     }
 
-    private boolean isCorrectUrl(String inputUrl) throws URISyntaxException {
+    private boolean isCorrectUrl(String inputUrl) {
 
-        URI url = new URI(inputUrl);
+        URI url = URI.create(inputUrl);
 
-        try {
-            if (url.getScheme().equals("http") || url.getScheme().equals("https")) {
-                for (String itm : conf.getBlackList()) {
-                    if (url.getHost().equals(itm)) {
-                        return false;
-                    }
-                }
-                return true;
-            }
-        } catch (NullPointerException e) {
-            return false;
+        if (url.getScheme().equals("http") || url.getScheme().equals("https")) {
+            return !conf.getBlackList().contains(url.getHost());
+
         }
+
         return false;
     }
 }

@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URISyntaxException;
 
 @Controller
-//@RequestMapping("/")
 public class CutUrlController {
 
     CutUrlService cutUrlService;
@@ -21,7 +20,7 @@ public class CutUrlController {
     }
 
     @GetMapping("/")
-    String getMainPage(Model model){
+    String getMainPage(Model model) {
         model.addAttribute("counter", cutUrlService.getTotalNumberOfUrls());
         model.addAttribute("convertedRecord", new ConvertRecord());
         return "main";
@@ -30,7 +29,7 @@ public class CutUrlController {
 
     @PostMapping("/shorturl")
     String getShortUrl(@ModelAttribute("convertedRecord") ConvertRecord convertedRecord,
-                       Model model){
+                       Model model) {
 
         try {
             convertedRecord = cutUrlService.getShortNameFromUrl(convertedRecord.getUrl());
@@ -46,7 +45,7 @@ public class CutUrlController {
 
     @PostMapping("/realurl")
     String getRealUrlByShort(@ModelAttribute("convertedRecord") ConvertRecord convertedRecord,
-                             Model model){
+                             Model model) {
 
         String url = convertedRecord.getUrl();
 

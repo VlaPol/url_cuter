@@ -6,7 +6,6 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Repository;
 
-import javax.sql.DataSource;
 import java.util.List;
 import java.util.Optional;
 
@@ -64,9 +63,8 @@ public class CutUrlRepositoryImpl implements CutUrlRepository {
         List<String> tmpList = jdbcTemplate.query(sql, parametr, (rs, rowNum) -> rs.getString("SHORT_NAME"));
         if (!tmpList.isEmpty()) {
             return tmpList.get(0).equals(shortName);
-        } else {
-            return false;
         }
+        return false;
     }
 
     @Override

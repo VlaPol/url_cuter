@@ -9,8 +9,8 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 @EnableConfigurationProperties(BlackListConfig.class)
 public class UrlCuterApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(UrlCuterApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(UrlCuterApplication.class, args);
+    }
 
 }
